@@ -3,6 +3,7 @@ import { useState } from "react";
 
 export default function Grid({ size }) {
   const [clickSequenceNumber, setclickSequenceNumber] = useState(0);
+  const [isRevering, setIsReversing] = useState(false);
 
   const [clickSArray, setClicksArray] = React.useState(
     Array(size * size)
@@ -19,6 +20,7 @@ export default function Grid({ size }) {
 
     if (clickSequenceNumber === size * size - 1) {
       setclickSequenceNumber(0);
+      setIsReversing(true);
 
       clickSArray.forEach((it) => {
         setTimeout(
@@ -28,6 +30,10 @@ export default function Grid({ size }) {
                 i.id === itemId ? { ...i, isClicked: false } : i,
               ),
             );
+
+            if (clickSArray[itemId].clickSequenceNumber === -1) {
+              setIsReversing(false);
+            }
           },
           1000 * (clickSArray.length - it.clickSequenceNumber),
           it.id,
@@ -38,16 +44,13 @@ export default function Grid({ size }) {
 
     const targetId = event.target.id;
 
-    setClicksArray((prev) => {
-      const re = prev.map((i) =>
+    setClicksArray((prev) =>
+      prev.map((i) =>
         i.id == targetId
           ? { ...clickSArray[targetId], isClicked: true, clickSequenceNumber }
           : i,
-      );
-
-      console.log(re);
-      return re;
-    });
+      ),
+    );
 
     setclickSequenceNumber((prev) => prev + 1);
   }
@@ -55,26 +58,42 @@ export default function Grid({ size }) {
   return (
     <div
       style={{
-        display: "grid",
-        gridTemplateColumns: Array(size).fill("1fr").join(" "),
-        color: "white",
+        top: "50",
       }}
     >
-      {clickSArray.map((it) => (
-        <div
-          onClick={handleClick}
-          id={it.id}
-          key={it.id}
-          style={{
-            backgroundColor: it.isClicked ? "green" : "black",
-            margin: "10px",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          {it.id}
-        </div>
-      ))}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: Array(size).fill("1fr").join(" "),
+          color: "white",
+        }}
+      >
+        {clickSArray.map((it) => (
+          <div
+            onClick={handleClick}
+            id={it.id}
+            key={it.id}
+            style={{
+              borderRadius: "1rem",
+              height: "3rem",
+              cursor: "pointer",
+              backgroundColor: it.isClicked ? "green" : "black",
+              margin: "10px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {it.id}
+          </div>
+        ))}
+
+        {isRevering ? (
+          <h1 style={{ color: "black", width: "100%" }}> Reversing Now </h1>
+        ) : (
+          []
+        )}
+      </div>
     </div>
   );
 }
